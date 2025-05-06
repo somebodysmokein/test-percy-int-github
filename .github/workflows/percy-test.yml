@@ -1,0 +1,65 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    # Optional: You can define inputs here that the user can provide
+    # when triggering manually via the UI.
+    # inputs:
+    #   environment:
+    #     description: 'Environment to deploy to'
+    #     required: true
+    #     default: 'staging'
+    #   build_only:
+    #     description: 'Skip deployment steps?'
+    #     required: false
+    #     type: boolean
+    #     default: false  
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 20.17.0
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.17.0
+        cache: 'npm'
+    - run: npm ci
+     # --- Add these debugging steps ---
+    - name: Which percy?
+      run: npx percy --version
+
+    - name: Which storybook?
+      # This will likely fail, but the output might be informative
+      run: npx run storybook --version
+      continue-on-error: true # Allow workflow to continue if this fails
+
+    - name: List node_modules/.bin contents
+      run: ls -l node_modules/.bin/
+
+    - name: Print PATH
+      run: echo $PATH
+    # --- End of debugging steps ---
+    - run: npm run build --if-present
+    - run: npm test
+      env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+    - name: Make script executable
+      run: chmod +x ./waitForBuildTOEnd.sh
+      
+    - name: Execute the script file
+      run: ./waitForBuildTOEnd.sh
+      env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}      
