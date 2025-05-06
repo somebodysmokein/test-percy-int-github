@@ -43,7 +43,7 @@ jobs:
 
     - name: Which storybook?
       # This will likely fail, but the output might be informative
-      run: npx run storybook --version
+      run: npx storybook --version
       continue-on-error: true # Allow workflow to continue if this fails
 
     - name: List node_modules/.bin contents
