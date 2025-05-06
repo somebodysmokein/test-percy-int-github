@@ -4,8 +4,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "storybook dev",
-    "build": "storybook build",
+    "start": "sb dev",
+    "build": "sb build",
     "test": "percy storybook:start"
   },
   "dependencies": {
